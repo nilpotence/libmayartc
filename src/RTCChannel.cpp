@@ -25,9 +25,11 @@ char * RTCChannel::getName(){
 }
 
 void RTCChannel::unsetDataChannel(){
-	channel->UnregisterObserver();
-	channel->Release();
-	channel = NULL;
+	if(channel != NULL){
+		channel->UnregisterObserver();
+		channel->Release();
+		channel = NULL;
+	}
 	std::cout << "CH " << name << " : data channel unregistered" << std::endl;
 }
 

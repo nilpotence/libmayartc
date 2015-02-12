@@ -60,6 +60,10 @@ sigrun:
 run:
 	./build/Main
 
+prepare-package:
+	cp build/libmayartc.so dist/libmayartc/usr/lib/
+	cp src/*.h* dist/libmayartc/usr/include/mayartc/	
+
 build/Main: build/obj/Main.o build/libmayartc.so
 	g++ ${DEBUG} ${LDFLAGS} -Lbuild/ build/obj/Main.o -o build/Main -lmayartc
 	

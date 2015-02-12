@@ -61,6 +61,7 @@ class MayaSignaling : public MayaSignalingInterface{
 			remote.sun_family = AF_UNIX;
 			strcpy(remote.sun_path, "/tmp/maya.sock");
 			len = strlen(remote.sun_path) + sizeof(remote.sun_family);
+
 			if (connect(signalingSocket, (struct sockaddr *)&remote, len) == -1) {
 				return false;
 			}
@@ -167,7 +168,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			int peerid = -1;
 			//Get Client ID
-			GetIntFromJsonObject(jmessage, "clientID", &peerid);
+			GetIntFromJsonObject(jmessage, "peerId", &peerid);
  
 			//If client ID not defined, abort
 			if(peerid == -1) return ; 
@@ -186,14 +187,13 @@ class MayaSignaling : public MayaSignalingInterface{
 		void processListChannels(int peerid, Json::Value message){
 			
 			Json::StyledWriter writer;
-			Json::Value data;
 
 			//Extract this peer's channel names
 			std::vector<std::string> channels = getPeer()->getChannelNames();
 
 			//Serialize to JSON
-			data["channels"] = StringVectorToJsonArray(channels);
-			message["data"] = data;
+			message["channels"] = StringVectorToJsonArray(channels);
+			
 			std::string msg = writer.write(message);
 
 			sendMessage(peerid, msg.c_str(), msg.length());
@@ -204,11 +204,9 @@ class MayaSignaling : public MayaSignalingInterface{
 			int sdp_mlineindex;
 			std::string sdp;
 
-			Json::Value data;
 			Json::Value candidate;
 
-			GetValueFromJsonObject(message, "data", &data);
-			GetValueFromJsonObject(data, "candidate", &candidate);
+			GetValueFromJsonObject(message, "candidate", &candidate);
 
 			GetStringFromJsonObject(candidate, kCandidateSdpMidName, &sdp_mid);
 			GetIntFromJsonObject(candidate, kCandidateSdpMlineIndexName, &sdp_mlineindex);
@@ -221,7 +219,7 @@ class MayaSignaling : public MayaSignalingInterface{
 		void processConnect(int peerid, Json::Value message){
 
 			std::vector<std::string> channels;
-			JsonArrayToStringVector(message["obj"], &channels);
+			JsonArrayToStringVector(message["channels"], &channels);
 
 			getPeer()->onConnectionRequest(peerid, channels);
 		}
@@ -231,12 +229,8 @@ class MayaSignaling : public MayaSignalingInterface{
 			std::string type;
 			std::string sdp;
 
-			Json::Value data;
-
-			GetValueFromJsonObject(message, "data", &data);
-
-			GetStringFromJsonObject(data, "type", &type);
-			GetStringFromJsonObject(data, "sdp", &sdp);
+			GetStringFromJsonObject(message, "type", &type);
+			GetStringFromJsonObject(message, "sdp", &sdp);
 
 			getPeer()->onRemoteSDP(peerid, type, sdp);
 

@@ -58,7 +58,7 @@ RTCPeer::RTCPeer(RTCSignalingChannel *signalingChannel){
 
 	peerConnectionFactory = webrtc::CreatePeerConnectionFactory();
 
-	createStreams();
+	//createStreams();
 
 	signalingChannel->start();
 }
