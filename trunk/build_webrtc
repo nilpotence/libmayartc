@@ -1,0 +1,48 @@
+=========================================================================
+HOW-TO : Build WebRTC ( http://www.webrtc.org/reference/getting-started )
+=========================================================================
+
+Prerequisites :
+--------------
+
+- Install depot_tools ( https://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools ) :
+
+	get depot tools :
+	  cd /home/user/bin/
+	  git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git 
+
+	add this at the end of ~/.bashrc :
+	  export PATH="$PATH":home/user/bin/depot_tools
+
+
+- install linux dependencies [Ubuntu 12.04] ( http://www.webrtc.org/reference/getting-started/prerequisite-sw ):
+
+	sudo apt-get install g++ python libnss3-dev libasound2-dev libpulse-dev libjpeg62-dev libxv-dev libgtk2.0-dev libexpat1-dev libxss-dev libxtst-dev libdrm-dev libgconf2-dev libgnome-keyring-dev libgcrypt11-dev libpci-dev libudev-dev mesa-common-dev libgl1-mesa-dev openjdk-6-jdk
+
+
+
+Get the code :
+-------------
+
+cd /home/user/libs
+mkdir webrtc
+cd webrtc
+gclient config http://webrtc.googlecode.com/svn/trunk
+
+export JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk
+
+gclient sync --force  (very long)
+
+
+Build :
+------
+
+cd trunk/
+ninja -C out/Release
+
+
+
+
+
+
+

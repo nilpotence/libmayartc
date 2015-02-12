@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>WebRTC Browser to Native</title>
+		<meta name="description" content="WebRTC Browser to Native" />
+		<meta name="author" content="Partnering 3.0" />
+		<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js'></script>
+		
+		<script>
+			$('document').ready(function(){
+				//////////////////////////GLOBALS/////////////////////////
+				// if user is running mozilla then use it's built-in WebSocket
+				window.WebSocket = window.WebSocket || window.MozWebSocket;
+		
+				// if browser doesn't support WebSocket, just show some notification and exit
+				if (!window.WebSocket) {
+					//no websocket support
+					return;
+				}
+				
+				//Check for WebRTC
+				window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+				if(!window.RTCPeerConnection){
+					return;
+				}
+				
+				URL = window.webkitURL || window.URL;
+				
+				function log(message){
+					$('#console').append('<p>'+message+'</p>');
+				}
+				
+				///////////////////////////////////////////////////////////
+				
+				
+				var signalingChannel = new WebSocket('ws://192.168.1.17:8080');				
+				var servers = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+				var pc;
+				
+			    var mediaConstraints = {'mandatory': {
+			        'OfferToReceiveAudio': true,
+			        'OfferToReceiveVideo': true }};
+				
+				signalingChannel.onopen = function(){
+			
+				    pc = new RTCPeerConnection(servers, {optional: []});
+
+				    var sendChannel = pc.createDataChannel('ch_send', {maxRetransmits: 0});
+				    
+				    var channelOK = false;
+				    
+				    $(document).mousemove(function(event){
+						//if(channelOK) sendChannel.send("x:"+event.pageX+",y:"+event.pageY);
+					});
+				    
+				    var currentVal = 0.0;
+				    function render(){
+				    	
+				    	$("#ch_send").html(currentVal);
+				    	
+				    	requestAnimationFrame(render);
+				    }
+				    requestAnimationFrame(render);
+				    
+				    sendChannel.onopen = function(){
+				    	console.log('channel created ('+sendChannel.binaryType+')!');
+				    	channelOK = true;
+				    };
+				    sendChannel.onmessage = function(message){
+				    	var buffer = new Float32Array(message.data);
+				    	currentVal = buffer[0];
+				    };
+				    
+				    pc.ondatachannel = function(ch){
+				    	log("new remote data channel !");
+				    };
+				    
+				    pc.createOffer(function(desc) {
+			            pc.setLocalDescription(desc);
+			            signalingChannel.send(JSON.stringify(desc));
+			        },
+			        function(error){},
+			        mediaConstraints);
+				    
+				    pc.onaddstream = function(event){
+				    	log("new remote stream");
+				    	
+				    	var videoView = $('<video></video>').appendTo('#console').get(0);
+				    	
+				    	videoView.autoplay = true;
+				    	videoView.src = URL.createObjectURL(event.stream);
+				    	
+				    };
+				    
+				    // send any ice candidates to the other peer
+				    pc.onicecandidate = function (evt) {
+				        signalingChannel.send(JSON.stringify(evt.candidate));
+				    };
+				}
+
+				signalingChannel.onmessage = function (evt) {
+				    var signal = JSON.parse(evt.data);
+				    if (signal.sdp) {
+				    	var remoteDescription = new RTCSessionDescription({sdp: signal.sdp, type: signal.type});
+				        pc.setRemoteDescription(remoteDescription);
+				    }else{
+				    	var iceCandidate = new RTCIceCandidate({candidate: signal.candidate});				    	
+				        pc.addIceCandidate(iceCandidate);
+				    }
+				};				
+				
+			});
+		
+		
+		</script>
+		
+		<style>
+			body{
+				margin: 0px;
+			}
+			div#console{
+				margin-left: auto;
+				margin-right: auto;
+				width: 80%;
+				min-height: 80vh;
+				background: black;
+				color: lightgreen;
+				box-shadow: 5px 5px 5px #555;
+				font-family: "Courier New";
+				font-weight: bold;
+				padding: 10px;
+			}
+			div#console p{
+				margin: 3px;
+			}
+			div#console video{
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				width: 100vw;
+				height: 100vh;
+				background: white;
+			}
+			
+			div#ch_send{
+				
+				background: black;
+				width: 10%;
+				height: 5vh;
+				font-family: "Courier New";
+				color: lightgreen;
+				font-weight: bold;
+			}
+		
+		</style>
+	</head>
+	<body>
+		<h1>WebRTC Browser to Native</h1>
+		<div id="console">
+		</div>
+		<div id="ch_send">
+		</div>
+	</body>
+</html>
