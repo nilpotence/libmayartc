@@ -17,7 +17,7 @@ namespace maya{
 
 class RTCPeer;
 
-class RTCConnection : public webrtc::PeerConnectionObserver, webrtc::CreateSessionDescriptionObserver{
+class RTCConnection : public webrtc::PeerConnectionObserver, webrtc::CreateSessionDescriptionObserver, public rtc::MessageHandler{
 
 	private :
 		int peerID;
@@ -72,6 +72,8 @@ class RTCConnection : public webrtc::PeerConnectionObserver, webrtc::CreateSessi
 		virtual void OnFailure(const std::string& error);
 		/////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////
+		
+		void OnMessage(rtc::Message * msg);
 
 
 		int getPeerID();

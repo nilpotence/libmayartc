@@ -21,8 +21,10 @@ RTCConnection::RTCConnection(RTCPeer *peer, webrtc::PeerConnectionFactoryInterfa
 	this->peerID = peerID;
 	this->peer = peer;
 
-	this->peerConnection = peerConnectionFactory->CreatePeerConnection(getIceServers(), getMediaConstraints(), NULL, NULL, this);
+	webrtc::PeerConnectionInterface::RTCConfiguration config;
+	//config.servers = getIceServers();
 
+	this->peerConnection = peerConnectionFactory->CreatePeerConnection(config, getMediaConstraints(), NULL, NULL, this);
 }
 
 RTCConnection::~RTCConnection(){
@@ -36,6 +38,7 @@ webrtc::PeerConnectionInterface::IceServers RTCConnection::getIceServers(){
 	webrtc::PeerConnectionInterface::IceServer googleServer;
 	googleServer.password = std::string("",0);
 	std::string uri = "stun:stun.l.google.com:19302";
+	//std::string uri = "stun:stun.services.mozilla.com/";
 	googleServer.uri = uri;
 	googleServer.username = std::string("", 0);
 
@@ -134,6 +137,7 @@ rtc::scoped_refptr<webrtc::DataChannelInterface> RTCConnection::createDataChanne
 
 void RTCConnection::createOffer(){
 	peerConnection->CreateOffer(this, NULL);
+	printf("CreateOffer\n");
 }
 
 void RTCConnection::setRemoteSessionDescription(webrtc::SessionDescriptionInterface* session_description){
@@ -151,5 +155,11 @@ void RTCConnection::addICECandidate(webrtc::IceCandidateInterface *candidate){
 		std::cout << "[SIG] cannot use new candidate" << std::endl;
 	}
 }
+
+// implements the MessageHandler interface
+void RTCConnection::OnMessage(rtc::Message* msg){
+	std::cout << "MSG" << std::endl;
+}
+
 
 }

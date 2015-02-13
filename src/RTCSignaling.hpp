@@ -27,6 +27,9 @@ class RTCSignalingChannelPeer{
 
 		virtual void disconnect() = 0;
 
+		virtual void onSignalingThreadStarted() = 0;
+		virtual void processMessages() = 0;
+
 		virtual void onStateChanged(RTCSignalingChannelState state) = 0;
 		virtual void onMessage(int peerid, const char * message, int length) = 0;
 		virtual void onRemoteSDP(int peerid, std::string type, std::string sdp) = 0;
@@ -43,6 +46,8 @@ class RTCSignalingChannel {
 		virtual void start() = 0;
 		virtual void stop() = 0;
 		virtual void join() = 0;
+
+		void onSignalingThreadStarted();
 
 		virtual void sendMessage(int peerid, const char * message, int length) = 0;
 		virtual void sendLocalSDP(int peerid, std::string type, std::string sdp) = 0;

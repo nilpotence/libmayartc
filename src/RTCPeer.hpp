@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <thread>
+#include <pthread.h>
 #include <unordered_map>
 
 #include "webrtc/base/scoped_ref_ptr.h"
@@ -29,9 +30,16 @@ class RTCConnection;
 		RTCSignalingChannel *signalingChannel;
 		std::unordered_map<std::string, RTCChannel*> channels;
 
+		rtc::Thread* sig_thread;
+		rtc::Thread* worker_thread;
+
+		pthread_mutex_t mutex;
+
 	public:
 		RTCPeer(RTCSignalingChannel *signalingChannel);
 		~RTCPeer();
+
+		void createPeerConnectionFactory();
 
 		RTCSignalingChannel * getSignalingChannel();
 		void createStreams();
@@ -45,6 +53,9 @@ class RTCConnection;
 
 		void disconnect();
 
+		void onSignalingThreadStarted();
+		void processMessages();
+
 		void onStateChanged(RTCSignalingChannelState state);
 		void onRemoteSDP(int peerid, std::string type, std::string sdp);
 		void onRemoteICECandidate(int peerid, std::string sdp_mid, int sdp_mlineindex, std::string sdp);
@@ -52,6 +63,9 @@ class RTCConnection;
 		void onConnectionRequest(int peerid, std::vector<std::string> channels);
 
 		std::vector<std::string> getChannelNames();
+
+		// implements the MessageHandler interface
+		void OnMessage(rtc::Message* msg);
 
 	};
 

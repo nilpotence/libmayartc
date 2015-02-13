@@ -54,13 +54,18 @@ void initRTC(){
 RTCPeer::RTCPeer(RTCSignalingChannel *signalingChannel){
 	this->signalingChannel = signalingChannel;
 
-	signalingChannel->setPeer(this);
+	mutex = PTHREAD_MUTEX_INITIALIZER;
+	
+	pthread_mutex_lock(&mutex);
 
-	peerConnectionFactory = webrtc::CreatePeerConnectionFactory();
+	signalingChannel->setPeer(this);
+	signalingChannel->start();
+
+	pthread_mutex_lock(&mutex);
 
 	//createStreams();
 
-	signalingChannel->start();
+	
 }
 
 RTCPeer::~RTCPeer(){
@@ -100,6 +105,15 @@ void RTCPeer::disconnect(){
 
 void RTCPeer::join(){
 	signalingChannel->join();
+}
+
+void RTCPeer::createPeerConnectionFactory(){
+
+	sig_thread = rtc::ThreadManager::Instance()->WrapCurrentThread();
+	worker_thread = new rtc::Thread;
+	worker_thread->Start();
+
+	peerConnectionFactory = webrtc::CreatePeerConnectionFactory(worker_thread, sig_thread, NULL, NULL, NULL);
 }
 
 void RTCPeer::createStreams(){
@@ -190,6 +204,7 @@ void RTCPeer::deleteConnection(int peerid){
 }
 
 RTCConnection * RTCPeer::getConnection(int peerid){
+	
 	rtc::RefCountedObject<RTCConnection> *connection;
 	try{
 		connection = connections.at(peerid);
@@ -197,8 +212,7 @@ RTCConnection * RTCPeer::getConnection(int peerid){
 		connection = new rtc::RefCountedObject<RTCConnection>(this, peerConnectionFactory, peerid);
 		connection->AddRef();
 		connections[peerid] = connection;
-
-		connection->addStream(streams["video"]);
+		//connection->addStream(streams["video"]);
 	}
 	return connection;
 }
@@ -206,6 +220,16 @@ RTCConnection * RTCPeer::getConnection(int peerid){
 //////////////////////////////////////////////////////////////////////
 /////////////SignalingChannel Observer implementation/////////////////
 //////////////////////////////////////////////////////////////////////
+
+void RTCPeer::onSignalingThreadStarted(){
+	createPeerConnectionFactory();
+	pthread_mutex_unlock(&mutex);
+}
+
+void RTCPeer::processMessages(){
+	sig_thread->ProcessMessages(10);
+	worker_thread->ProcessMessages(10);
+}
 
 void RTCPeer::onStateChanged(RTCSignalingChannelState state){
 
@@ -250,7 +274,10 @@ void RTCPeer::onConnectionRequest(int peerid, std::vector<std::string> channelna
 	}
 	
 	//If no channel is requested or no valid channel names are provided, abort connection attempt
-	if(requestedChannels.size() <= 0) return ;
+	if(requestedChannels.size() <= 0){
+		printf("connect : no match !\n");
+		return ;
+	}
 
 	//Create new Connection
 	RTCConnection *connection = getConnection(peerid);
@@ -258,7 +285,6 @@ void RTCPeer::onConnectionRequest(int peerid, std::vector<std::string> channelna
 	for(int i=0; i<requestedChannels.size(); i++){
 
 		rtc::scoped_refptr<webrtc::DataChannelInterface> wch = connection->createDataChannel(requestedChannels[i]->getName());
-
 		requestedChannels[i]->setDataChannel(wch);
 	}
 

@@ -48,8 +48,8 @@ class MayaSignaling : public MayaSignalingInterface{
 			char str[100];
 
 			struct timeval tv;
-			tv.tv_sec = 1;
-			tv.tv_usec = 0;
+			tv.tv_sec = 0;
+			tv.tv_usec = 10000;
 
 			if ((signalingSocket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 				perror("socket");
@@ -108,7 +108,11 @@ class MayaSignaling : public MayaSignalingInterface{
 			int buffer_pos = 0;
 			char tmpbuff[SIGNALING_BUFFER_SIZE];
 
+			getPeer()->onSignalingThreadStarted();
+
 			while(signalingContinue){
+
+				getPeer()->processMessages();
 
 				if(!isConnected){
 					isConnected = tryconnect();
@@ -237,43 +241,32 @@ class MayaSignaling : public MayaSignalingInterface{
 		}
 
 		virtual void sendLocalSDP(int peerid, std::string type, std::string sdp){
-			
+		
 			Json::StyledWriter writer;
-
 			Json::Value message;
-			Json::Value data;
 
-			data[kSessionDescriptionTypeName] = type;
-			data[kSessionDescriptionSdpName] = sdp;
-
-			message["service"] = "rtc";
+			message[kSessionDescriptionTypeName] = type;
+			message[kSessionDescriptionSdpName] = sdp;
 			message["func"] = "RemoteOffer";
-			message["data"] = data;
-			message["clientID"] = peerid;
+			message["peerId"] = peerid;
 
 			std::string msg = writer.write(message);
 			sendMessage(-1,msg.c_str(), msg.length());
-
-
 		}
 
 		virtual void sendLocalICECandidate(int peerid, std::string sdp_mid, int sdp_mlineindex, std::string sdp){
 			Json::StyledWriter writer;
 			Json::Value message;
-			Json::Value data;
 			Json::Value candidate;
 
-			message["service"] = "rtc";
 			message["func"] = "RemoteICECandidate";
-			message["clientID"] = peerid;
+			message["peerId"] = peerid;
 
 			candidate[kCandidateSdpMidName] =sdp_mid;
 			candidate[kCandidateSdpMlineIndexName] = sdp_mlineindex;
 			candidate[kCandidateSdpName] = sdp;
 
-			data["candidate"] = candidate;
-
-			message["data"] = data;
+			message["candidate"] = candidate;
 
 			std::string msg = writer.write(message);
 

@@ -17,5 +17,9 @@ RTCSignalingChannelPeer * RTCSignalingChannel::getPeer(){
 	return this->peer;
 }
 
+void RTCSignalingChannel::onSignalingThreadStarted(){
+	this->peer->onSignalingThreadStarted();
+}
+
 } //NAMESPACE MAYA
 
