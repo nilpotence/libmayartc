@@ -34,6 +34,7 @@ class RTCConnection;
 		rtc::Thread* worker_thread;
 
 		pthread_mutex_t mutex;
+		pthread_mutex_t mutexConnection;
 
 	public:
 		RTCPeer(RTCSignalingChannel *signalingChannel);
@@ -54,6 +55,7 @@ class RTCConnection;
 		void disconnect();
 
 		void onSignalingThreadStarted();
+		void onSignalingThreadStopped();
 		void processMessages();
 
 		void onStateChanged(RTCSignalingChannelState state);
@@ -71,6 +73,7 @@ class RTCConnection;
 
 
 	void initRTC();
+	void destroyRTC();
 }
 
 #endif

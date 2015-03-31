@@ -28,6 +28,7 @@ class RTCSignalingChannelPeer{
 		virtual void disconnect() = 0;
 
 		virtual void onSignalingThreadStarted() = 0;
+		virtual void onSignalingThreadStopped() = 0;
 		virtual void processMessages() = 0;
 
 		virtual void onStateChanged(RTCSignalingChannelState state) = 0;

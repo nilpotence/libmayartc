@@ -17,6 +17,7 @@
 #include "webrtc/base/json.h"
 
 #include "MayaSignaling.hpp"
+#include "RTCPeerInterface.hpp"
 
 namespace maya{
 
@@ -41,6 +42,9 @@ class MayaSignaling : public MayaSignalingInterface{
 		std::thread signalingThread;
 		bool signalingContinue;
 		char signalingBuffer[SIGNALING_BUFFER_SIZE];
+
+		pthread_mutex_t stopMutex;
+		pthread_mutex_t startMutex;
 
 		bool tryconnect(){
 			int len;
@@ -77,7 +81,9 @@ class MayaSignaling : public MayaSignalingInterface{
 		MayaSignaling():
 			signalingSocket(-1),
 			signalingContinue(false),
-			isConnected(false){
+			isConnected(false),
+			stopMutex(PTHREAD_MUTEX_INITIALIZER),
+			startMutex(PTHREAD_MUTEX_INITIALIZER){
 
 		}
 
@@ -91,12 +97,20 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			signalingContinue = true;
 
+			pthread_mutex_lock(&startMutex);
+
 			signalingThread = std::thread([&](){
 				this->run();
 			});
+
+			pthread_mutex_lock(&startMutex);
+			pthread_mutex_unlock(&startMutex);
 		}
 		virtual void stop() {
+			pthread_mutex_lock(&stopMutex);
 			signalingContinue = false;
+			pthread_mutex_lock(&stopMutex);
+			pthread_mutex_unlock(&stopMutex);
 		}
 
 		virtual void join(){
@@ -108,7 +122,11 @@ class MayaSignaling : public MayaSignalingInterface{
 			int buffer_pos = 0;
 			char tmpbuff[SIGNALING_BUFFER_SIZE];
 
+			setPeer(RTCPeerInterface::create(this));
+
 			getPeer()->onSignalingThreadStarted();
+
+			pthread_mutex_unlock(&startMutex);
 
 			while(signalingContinue){
 
@@ -150,6 +168,14 @@ class MayaSignaling : public MayaSignalingInterface{
 			}
 
 			close(signalingSocket);
+			getPeer()->onSignalingThreadStopped();
+			std::cout << "PRE" << std::endl;
+			delete getPeer();
+			std::cout << "POST" << std::endl;
+			pthread_mutex_unlock(&stopMutex);
+
+			std::cout << "[SIG] Quit" << std::endl;
+
 		}
 
 		void processMessage(const char * buffer, int length){

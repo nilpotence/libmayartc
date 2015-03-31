@@ -16,7 +16,6 @@
 
 #include "talk/media/devices/devicemanager.h"
 #include "talk/media/base/videocapturer.h"
-#include "talk/media/base/fakevideocapturer2.h"
 
 #include "talk/app/webrtc/jsep.h"
 #include "talk/app/webrtc/mediaconstraintsinterface.h"
@@ -47,6 +46,10 @@ const char kStreamLabel[] = "stream_label";
 void initRTC(){
 	rtc::InitializeSSL();
 }
+
+void destroyRTC(){
+	rtc::CleanupSSL();
+}
  
 
 
@@ -55,27 +58,23 @@ RTCPeer::RTCPeer(RTCSignalingChannel *signalingChannel){
 	this->signalingChannel = signalingChannel;
 
 	mutex = PTHREAD_MUTEX_INITIALIZER;
+	mutexConnection = PTHREAD_MUTEX_INITIALIZER;
 	
-	pthread_mutex_lock(&mutex);
-
-	signalingChannel->setPeer(this);
-	signalingChannel->start();
-
-	pthread_mutex_lock(&mutex);
-
-	//createStreams();
-
 	
+	
+	createPeerConnectionFactory();
+
 }
 
+
+
 RTCPeer::~RTCPeer(){
+	std::cout << "deleting RTCPeer... " << std::endl;
 
-	std::cout << "deleting RTCPeer... ";
-
-	signalingChannel->stop();
+	peerConnectionFactory = NULL;
 
 	for(auto kv : connections){
-		deleteConnection(kv.second->getPeerID());
+		kv.second->Release();
 	}
 
 	connections.clear();
@@ -192,20 +191,24 @@ bool RTCPeer::offerChannel(webrtc::DataChannelInterface *channel){
 
 void RTCPeer::deleteConnection(int peerid){
 	rtc::RefCountedObject<RTCConnection> *connection;
+	
+	pthread_mutex_lock(&mutexConnection);
+
 	try{
 		connection = connections.at(peerid);
 		connection->Release();
-
 		connections.erase(peerid);
 
 	}catch(std::out_of_range& error){
-		return ;
 	}
+	pthread_mutex_unlock(&mutexConnection);
 }
 
 RTCConnection * RTCPeer::getConnection(int peerid){
 	
 	rtc::RefCountedObject<RTCConnection> *connection;
+	
+	pthread_mutex_lock(&mutexConnection);
 	try{
 		connection = connections.at(peerid);
 	}catch(std::out_of_range& error){
@@ -214,6 +217,7 @@ RTCConnection * RTCPeer::getConnection(int peerid){
 		connections[peerid] = connection;
 		//connection->addStream(streams["video"]);
 	}
+	pthread_mutex_unlock(&mutexConnection);
 	return connection;
 }
 
@@ -222,8 +226,9 @@ RTCConnection * RTCPeer::getConnection(int peerid){
 //////////////////////////////////////////////////////////////////////
 
 void RTCPeer::onSignalingThreadStarted(){
-	createPeerConnectionFactory();
-	pthread_mutex_unlock(&mutex);
+}
+
+void RTCPeer::onSignalingThreadStopped(){
 }
 
 void RTCPeer::processMessages(){

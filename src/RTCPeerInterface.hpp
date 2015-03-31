@@ -26,6 +26,7 @@ namespace maya{
 
 
 	void initRTC();
+	void destroyRTC();
 }
 
 #endif /* RTCPEERINTERFACE_HPP_ */
