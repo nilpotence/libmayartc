@@ -94,8 +94,10 @@ RTCSignalingChannel * RTCPeer::getSignalingChannel(){
 
 void RTCPeer::disconnect(){
 	for(auto kv : connections){
-		deleteConnection(kv.second->getPeerID());
+		kv.second->Release();
 	}
+
+	connections.clear();
 
 	for(auto kv : channels){
 		kv.second->unsetDataChannel();

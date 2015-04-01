@@ -61,6 +61,10 @@ run:
 	./build/Main
 
 prepare-package:
+	mkdir -p dist/libmayartc/usr
+	mkdir -p dist/libmayartc/usr/lib
+	mkdir -p dist/libmayartc/usr/include
+	mkdir -p dist/libmayartc/usr/include/mayartc
 	cp build/libmayartc.so dist/libmayartc/usr/lib/
 	mkdir -p dist/libmayartc/usr/include
 	mkdir -p dist/libmayartc/usr/include/mayartc/
