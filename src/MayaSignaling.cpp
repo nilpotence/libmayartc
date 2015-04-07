@@ -53,7 +53,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			struct timeval tv;
 			tv.tv_sec = 0;
-			tv.tv_usec = 10000;
+			tv.tv_usec = 1000;
 
 			if ((signalingSocket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 				perror("socket");
@@ -161,6 +161,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 
 				}else if(len == 0){
+					std::cout << "[SIG] Disconnected" << std::endl;
 					isConnected = false;
 					close(signalingSocket);
 					getPeer()->disconnect();

@@ -75,6 +75,7 @@ class RTCConnection : public webrtc::PeerConnectionObserver, webrtc::CreateSessi
 		
 		void OnMessage(rtc::Message * msg);
 
+		void close();
 
 		int getPeerID();
 

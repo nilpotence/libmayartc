@@ -3,6 +3,7 @@
 #include <thread>
 #include <unordered_map>
 #include <stdexcept>
+#include <unistd.h>
 
 #include "webrtc/base/helpers.h"
 #include "webrtc/base/json.h"
@@ -93,15 +94,16 @@ RTCSignalingChannel * RTCPeer::getSignalingChannel(){
 }
 
 void RTCPeer::disconnect(){
+	for(auto kv : channels){
+		kv.second->unsetDataChannel();
+	}
+
 	for(auto kv : connections){
+		kv.second->close();
 		kv.second->Release();
 	}
 
 	connections.clear();
-
-	for(auto kv : channels){
-		kv.second->unsetDataChannel();
-	}
 }
 
 void RTCPeer::join(){
@@ -235,7 +237,7 @@ void RTCPeer::onSignalingThreadStopped(){
 
 void RTCPeer::processMessages(){
 	sig_thread->ProcessMessages(10);
-	worker_thread->ProcessMessages(10);
+	//worker_thread->ProcessMessages(10);
 }
 
 void RTCPeer::onStateChanged(RTCSignalingChannelState state){
