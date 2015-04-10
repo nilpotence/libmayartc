@@ -58,13 +58,10 @@ void destroyRTC(){
 RTCPeer::RTCPeer(RTCSignalingChannel *signalingChannel){
 	this->signalingChannel = signalingChannel;
 
+	signalingChannel->setPeer(this);
+
 	mutex = PTHREAD_MUTEX_INITIALIZER;
 	mutexConnection = PTHREAD_MUTEX_INITIALIZER;
-	
-	
-	
-	createPeerConnectionFactory();
-
 }
 
 
@@ -230,6 +227,7 @@ RTCConnection * RTCPeer::getConnection(int peerid){
 //////////////////////////////////////////////////////////////////////
 
 void RTCPeer::onSignalingThreadStarted(){
+	createPeerConnectionFactory();
 }
 
 void RTCPeer::onSignalingThreadStopped(){

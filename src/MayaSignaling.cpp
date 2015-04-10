@@ -122,8 +122,6 @@ class MayaSignaling : public MayaSignalingInterface{
 			int buffer_pos = 0;
 			char tmpbuff[SIGNALING_BUFFER_SIZE];
 
-			setPeer(RTCPeerInterface::create(this));
-
 			getPeer()->onSignalingThreadStarted();
 
 			pthread_mutex_unlock(&startMutex);
