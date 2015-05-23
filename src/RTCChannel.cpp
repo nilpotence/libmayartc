@@ -50,7 +50,7 @@ void RTCChannel::OnMessage(const webrtc::DataBuffer& buffer){
 
 	if(recv_cb != NULL){
 		float * b = (float*) buffer.data.data();
-		this->recv_cb(b, buffer.data.length() * sizeof(char) / sizeof(float), this->recv_cb_data);
+		this->recv_cb(b, buffer.data.size() * sizeof(char) / sizeof(float), this->recv_cb_data);
 	}
 
 }

@@ -90,7 +90,7 @@ class SimpleDataChannelObserver : public webrtc::DataChannelObserver{
 		}
 		//  A data buffer was successfully received.
 		virtual void OnMessage(const webrtc::DataBuffer& buffer){
-			std::cout << "[CH (" << channel->label() << ")] message received : " << std::string(buffer.data.data(), buffer.data.length()) << std::endl;
+			std::cout << "[CH (" << channel->label() << ")] message received : " << std::string((const char*)buffer.data.data(), buffer.data.size()) << std::endl;
 		}
 
 	private:

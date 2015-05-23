@@ -189,7 +189,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 
 			std::string func;
-			GetStringFromJsonObject(jmessage,"func", &func);
+			rtc::GetStringFromJsonObject(jmessage,"func", &func);
 
 			if(func.empty()){
 				return ; //no command specified, ignore message
@@ -197,7 +197,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			int peerid = -1;
 			//Get Client ID
-			GetIntFromJsonObject(jmessage, "peerId", &peerid);
+			rtc::GetIntFromJsonObject(jmessage, "peerId", &peerid);
  
 			//If client ID not defined, abort
 			if(peerid == -1) return ; 
@@ -221,7 +221,7 @@ class MayaSignaling : public MayaSignalingInterface{
 			std::vector<std::string> channels = getPeer()->getChannelNames();
 
 			//Serialize to JSON
-			message["channels"] = StringVectorToJsonArray(channels);
+			message["channels"] = rtc::StringVectorToJsonArray(channels);
 			
 			std::string msg = writer.write(message);
 
@@ -235,11 +235,11 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			Json::Value candidate;
 
-			GetValueFromJsonObject(message, "candidate", &candidate);
+			rtc::GetValueFromJsonObject(message, "candidate", &candidate);
 
-			GetStringFromJsonObject(candidate, kCandidateSdpMidName, &sdp_mid);
-			GetIntFromJsonObject(candidate, kCandidateSdpMlineIndexName, &sdp_mlineindex);
-			GetStringFromJsonObject(candidate, kCandidateSdpName, &sdp);
+			rtc::GetStringFromJsonObject(candidate, kCandidateSdpMidName, &sdp_mid);
+			rtc::GetIntFromJsonObject(candidate, kCandidateSdpMlineIndexName, &sdp_mlineindex);
+			rtc::GetStringFromJsonObject(candidate, kCandidateSdpName, &sdp);
 
 
 			getPeer()->onRemoteICECandidate(peerid, sdp_mid, sdp_mlineindex, sdp);
@@ -248,7 +248,7 @@ class MayaSignaling : public MayaSignalingInterface{
 		void processConnect(int peerid, Json::Value message){
 
 			std::vector<std::string> channels;
-			JsonArrayToStringVector(message["channels"], &channels);
+			rtc::JsonArrayToStringVector(message["channels"], &channels);
 
 			getPeer()->onConnectionRequest(peerid, channels);
 		}
@@ -258,8 +258,8 @@ class MayaSignaling : public MayaSignalingInterface{
 			std::string type;
 			std::string sdp;
 
-			GetStringFromJsonObject(message, "type", &type);
-			GetStringFromJsonObject(message, "sdp", &sdp);
+			rtc::GetStringFromJsonObject(message, "type", &type);
+			rtc::GetStringFromJsonObject(message, "sdp", &sdp);
 
 			getPeer()->onRemoteSDP(peerid, type, sdp);
 
