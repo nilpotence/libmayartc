@@ -16,9 +16,9 @@ void signal_handler(int sig){
 }
 
 int main(void){
-	
+
 	struct sigaction sigact;
-	
+
 	sigact.sa_handler = signal_handler;
     sigemptyset(&sigact.sa_mask);
     sigact.sa_flags = 0;
@@ -35,7 +35,7 @@ int main(void){
 	signaling->start();
 
 	peer = (RTCPeerInterface*) signaling->getPeer();
-	peer->registerChannel("ctrl.info");
+	peer->registerChannel("ctrl.info", 1);
 	peer->join();
 
 	return 0;

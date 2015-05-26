@@ -17,8 +17,6 @@ void create(){
 	initRTC();
 
 	RTCPeerInterface * peer = RTCPeerInterface::create(MayaSignalingInterface::create());
-	peer->registerChannel("ch_send");
+	peer->registerChannel("ch_send", 1);
 	peer->join();
 }
-
-

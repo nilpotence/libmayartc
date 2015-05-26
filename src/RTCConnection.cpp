@@ -129,11 +129,18 @@ int RTCConnection::getPeerID(){
 }
 
 
-rtc::scoped_refptr<webrtc::DataChannelInterface> RTCConnection::createDataChannel(char *name){
+rtc::scoped_refptr<webrtc::DataChannelInterface> RTCConnection::createDataChannel(char *name, int reliable){
 
 	struct webrtc::DataChannelInit *init = new webrtc::DataChannelInit();
 
+	if(!reliable){
+		init->maxRetransmits = 0;
+		init->ordered = false;
+	}
+
 	rtc::scoped_refptr<webrtc::DataChannelInterface> ch = peerConnection->CreateDataChannel(std::string(name,strlen(name)), init);
+
+
 
 	return ch;
 }

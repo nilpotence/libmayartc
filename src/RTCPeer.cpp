@@ -51,7 +51,7 @@ void initRTC(){
 void destroyRTC(){
 	rtc::CleanupSSL();
 }
- 
+
 
 
 
@@ -171,8 +171,8 @@ cricket::VideoCapturer* RTCPeer::OpenVideoCaptureDevice(){
 	return capturer;
 }
 
-RTCChannelInterface* RTCPeer::registerChannel(const char* name){
-	RTCChannel *channel = new RTCChannel((char*)name);
+RTCChannelInterface* RTCPeer::registerChannel(const char* name, int reliable){
+	RTCChannel *channel = new RTCChannel((char*)name, reliable);
 
 	channels[std::string(name, strlen(name))] = channel;
 
@@ -192,7 +192,7 @@ bool RTCPeer::offerChannel(webrtc::DataChannelInterface *channel){
 
 void RTCPeer::deleteConnection(int peerid){
 	rtc::RefCountedObject<RTCConnection> *connection;
-	
+
 	pthread_mutex_lock(&mutexConnection);
 
 	try{
@@ -206,9 +206,9 @@ void RTCPeer::deleteConnection(int peerid){
 }
 
 RTCConnection * RTCPeer::getConnection(int peerid){
-	
+
 	rtc::RefCountedObject<RTCConnection> *connection;
-	
+
 	pthread_mutex_lock(&mutexConnection);
 	try{
 		connection = connections.at(peerid);
@@ -262,7 +262,7 @@ std::vector<std::string> RTCPeer::getChannelNames(){
 	for(auto kv : this->channels){
 		ret.push_back(kv.first);
 	}
-	
+
 	return ret;
 }
 
@@ -276,10 +276,10 @@ void RTCPeer::onConnectionRequest(int peerid, std::vector<std::string> channelna
 			//TODO : check is the channel is already connected or not
 			requestedChannels.push_back(ch);
 		}catch(std::out_of_range &error){
-			std::cerr << "no channel found for \"" << channelnames[i] <<"\"" << std::endl;	
+			std::cerr << "no channel found for \"" << channelnames[i] <<"\"" << std::endl;
 		}
 	}
-	
+
 	//If no channel is requested or no valid channel names are provided, abort connection attempt
 	if(requestedChannels.size() <= 0){
 		printf("connect : no match !\n");
@@ -291,7 +291,7 @@ void RTCPeer::onConnectionRequest(int peerid, std::vector<std::string> channelna
 
 	for(int i=0; i<requestedChannels.size(); i++){
 
-		rtc::scoped_refptr<webrtc::DataChannelInterface> wch = connection->createDataChannel(requestedChannels[i]->getName());
+		rtc::scoped_refptr<webrtc::DataChannelInterface> wch = connection->createDataChannel(requestedChannels[i]->getName(), requestedChannels[i]->isReliable());
 		requestedChannels[i]->setDataChannel(wch);
 	}
 
@@ -325,6 +325,3 @@ RTCPeerInterface* RTCPeerInterface::create(RTCSignalingChannel *signalingChannel
 
 
 } //NAMESPACE MAYA
-
-
-

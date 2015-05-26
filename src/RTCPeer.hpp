@@ -15,7 +15,7 @@
 #include "RTCChannel.hpp"
 
 #include "RTCPeerInterface.hpp"
- 
+
 namespace maya{
 
 class RTCConnection;
@@ -49,7 +49,7 @@ class RTCConnection;
 		RTCConnection * getConnection(int peerid);
 		virtual void join();
 		bool offerChannel(webrtc::DataChannelInterface *channel);
-		virtual RTCChannelInterface* registerChannel(const char* name);
+		virtual RTCChannelInterface* registerChannel(const char* name, int reliable);
 
 
 		void disconnect();

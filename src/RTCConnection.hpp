@@ -72,14 +72,14 @@ class RTCConnection : public webrtc::PeerConnectionObserver, webrtc::CreateSessi
 		virtual void OnFailure(const std::string& error);
 		/////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////
-		
+
 		void OnMessage(rtc::Message * msg);
 
 		void close();
 
 		int getPeerID();
 
-		rtc::scoped_refptr<webrtc::DataChannelInterface> createDataChannel(char *name);
+		rtc::scoped_refptr<webrtc::DataChannelInterface> createDataChannel(char *name, int reliable);
 		void createOffer();
 
 		void setRemoteSessionDescription(webrtc::SessionDescriptionInterface* session_description);

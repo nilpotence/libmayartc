@@ -20,7 +20,7 @@ namespace maya{
 
 			static RTCPeerInterface * create(RTCSignalingChannel *signalingChannel);
 
-			virtual RTCChannelInterface* registerChannel(const char* name) = 0;
+			virtual RTCChannelInterface* registerChannel(const char* name, int reliable) = 0;
 			virtual void join() = 0;
 	};
 

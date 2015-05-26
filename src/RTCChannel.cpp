@@ -11,9 +11,10 @@
 
 namespace maya{
 
-RTCChannel::RTCChannel(char * name){
+RTCChannel::RTCChannel(char * name, int reliable){
 	this->name = name;
 	this->channel = NULL;
+	this->reliable = reliable;
 }
 
 RTCChannel::~RTCChannel(){
@@ -22,6 +23,10 @@ RTCChannel::~RTCChannel(){
 
 char * RTCChannel::getName(){
 	return name;
+}
+
+int RTCChannel::isReliable(){
+	return reliable;
 }
 
 void RTCChannel::unsetDataChannel(){

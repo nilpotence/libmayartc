@@ -20,15 +20,18 @@ class RTCChannel : public RTCChannelInterface, public webrtc::DataChannelObserve
 	private:
 		webrtc::DataChannelInterface *channel;
 		char *name;
+		int reliable;
 		ReceiveCallback recv_cb;
 		void * recv_cb_data;
 
 	public:
 
-		RTCChannel(char * name);
+		RTCChannel(char * name, int reliable);
 		virtual ~RTCChannel();
 
 		char * getName();
+
+		int isReliable();
 
 		void unsetDataChannel();
 
