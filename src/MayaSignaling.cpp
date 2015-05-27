@@ -168,9 +168,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			close(signalingSocket);
 			getPeer()->onSignalingThreadStopped();
-			std::cout << "PRE" << std::endl;
-			delete getPeer();
-			std::cout << "POST" << std::endl;
+			//delete getPeer(); //TODO deleting peer segfaults while terminating audio stack !!
 			pthread_mutex_unlock(&stopMutex);
 
 			std::cout << "[SIG] Quit" << std::endl;
@@ -198,9 +196,9 @@ class MayaSignaling : public MayaSignalingInterface{
 			int peerid = -1;
 			//Get Client ID
 			rtc::GetIntFromJsonObject(jmessage, "peerId", &peerid);
- 
+
 			//If client ID not defined, abort
-			if(peerid == -1) return ; 
+			if(peerid == -1) return ;
 
 			if(func.compare("ListChannels") == 0){
 				processListChannels(peerid, jmessage);
@@ -214,7 +212,7 @@ class MayaSignaling : public MayaSignalingInterface{
 		}
 
 		void processListChannels(int peerid, Json::Value message){
-			
+
 			Json::StyledWriter writer;
 
 			//Extract this peer's channel names
@@ -222,7 +220,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			//Serialize to JSON
 			message["channels"] = rtc::StringVectorToJsonArray(channels);
-			
+
 			std::string msg = writer.write(message);
 
 			sendMessage(peerid, msg.c_str(), msg.length());
@@ -266,7 +264,7 @@ class MayaSignaling : public MayaSignalingInterface{
 		}
 
 		virtual void sendLocalSDP(int peerid, std::string type, std::string sdp){
-		
+
 			Json::StyledWriter writer;
 			Json::Value message;
 
@@ -327,4 +325,3 @@ MayaSignalingInterface * MayaSignalingInterface::create(){
 
 
 }
-
