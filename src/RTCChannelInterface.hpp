@@ -8,7 +8,7 @@
 #ifndef RTCCHANNELINTERFACE_HPP_
 #define RTCCHANNELINTERFACE_HPP_
 
-namespace maya{ 
+namespace maya{
 
 typedef void (*ReceiveCallback)(float* buffer, int bufferSize, void * userData);
 
@@ -20,6 +20,7 @@ class RTCChannelInterface{
 
 		virtual bool isConnected() = 0;
 		virtual void sendData(const char* buffer, int bufferSize) = 0;
+		virtual void setNegociationMessage(char * buffer, int bufferSize) = 0;
 		virtual void registerReceiveCallback(ReceiveCallback cb, void* userData) = 0;
 		virtual void close() = 0;
 };

@@ -19,10 +19,16 @@ class RTCChannel : public RTCChannelInterface, public webrtc::DataChannelObserve
 
 	private:
 		webrtc::DataChannelInterface *channel;
+		webrtc::DataChannelInterface *nextChannel;
 		char *name;
 		int reliable;
 		ReceiveCallback recv_cb;
 		void * recv_cb_data;
+		char *negociationMessage;
+		int negociationMessageSize;
+		bool negociated;
+
+		void doSetDataChannel(webrtc::DataChannelInterface *channel);
 
 	public:
 
@@ -44,6 +50,7 @@ class RTCChannel : public RTCChannelInterface, public webrtc::DataChannelObserve
 
 		virtual bool isConnected();
 		virtual void sendData(const char* buffer, int bufferSize);
+		virtual void setNegociationMessage(char * buffer, int bufferSize);
 		virtual void registerReceiveCallback(ReceiveCallback cb, void * userData);
 
 		virtual void close();
