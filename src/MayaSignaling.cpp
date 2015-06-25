@@ -168,7 +168,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 			close(signalingSocket);
 			getPeer()->onSignalingThreadStopped();
-			//delete getPeer(); //TODO deleting peer segfaults while terminating audio stack !!
+			delete getPeer(); //TODO deleting peer segfaults while terminating audio stack !!
 			pthread_mutex_unlock(&stopMutex);
 
 			std::cout << "[SIG] Quit" << std::endl;
