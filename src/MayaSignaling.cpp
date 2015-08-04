@@ -71,7 +71,7 @@ class MayaSignaling : public MayaSignalingInterface{
 			}
 
 
-			std::cout << "[SIG] Connected" << std::endl;
+			//std::cout << "[SIG] Connected" << std::endl;
 
 			return true;
 		}
@@ -159,7 +159,7 @@ class MayaSignaling : public MayaSignalingInterface{
 
 
 				}else if(len == 0){
-					std::cout << "[SIG] Disconnected" << std::endl;
+					//std::cout << "[SIG] Disconnected" << std::endl;
 					isConnected = false;
 					close(signalingSocket);
 					getPeer()->disconnect();
@@ -171,7 +171,7 @@ class MayaSignaling : public MayaSignalingInterface{
 			delete getPeer(); //TODO deleting peer segfaults while terminating audio stack !!
 			pthread_mutex_unlock(&stopMutex);
 
-			std::cout << "[SIG] Quit" << std::endl;
+			//std::cout << "[SIG] Quit" << std::endl;
 
 		}
 

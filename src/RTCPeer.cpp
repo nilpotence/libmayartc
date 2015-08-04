@@ -67,23 +67,7 @@ RTCPeer::RTCPeer(RTCSignalingChannel *signalingChannel){
 
 
 RTCPeer::~RTCPeer(){
-	std::cout << "deleting RTCPeer... " << std::endl;
 
-	peerConnectionFactory = NULL;
-
-	for(auto kv : connections){
-		kv.second->Release();
-	}
-
-	connections.clear();
-
-	for(auto kv : channels){
-		delete kv.second;
-	}
-
-	channels.clear();
-
-	std::cout << "[ OK ]" << std::endl;
 }
 
 RTCSignalingChannel * RTCPeer::getSignalingChannel(){
@@ -231,6 +215,23 @@ void RTCPeer::onSignalingThreadStarted(){
 }
 
 void RTCPeer::onSignalingThreadStopped(){
+	//std::cout << "deleting RTCPeer... " << std::endl;
+
+	for(auto kv : connections){
+		kv.second->Release();
+	}
+
+	connections.clear();
+
+	for(auto kv : channels){
+		delete kv.second;
+	}
+
+	channels.clear();
+
+	peerConnectionFactory = NULL;
+
+	//std::cout << "[ OK ]" << std::endl;
 }
 
 void RTCPeer::processMessages(){

@@ -36,7 +36,7 @@ void RTCChannel::unsetDataChannel(){
 		channel->UnregisterObserver();
 		channel = NULL;
 	}
-	std::cout << "CH " << name << " : data channel unregistered" << std::endl;
+	//std::cout << "CH " << name << " : data channel unregistered" << std::endl;
 }
 
 void RTCChannel::setDataChannel(webrtc::DataChannelInterface *channel){
@@ -52,7 +52,6 @@ void RTCChannel::setDataChannel(webrtc::DataChannelInterface *channel){
 			this->nextChannel->state() == webrtc::DataChannelInterface::DataState::kOpen)){
 
 			this->nextChannel->Close();
-			this->nextChannel->Release();
 		}
 
 		this->nextChannel = channel;
