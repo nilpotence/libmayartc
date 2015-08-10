@@ -17,6 +17,7 @@ RTCChannel::RTCChannel(char * name, int reliable){
 	this->reliable = reliable;
 	this->negociated = false;
 	this->negociationMessage = NULL;
+	this->nextChannel = NULL;
 }
 
 RTCChannel::~RTCChannel(){
