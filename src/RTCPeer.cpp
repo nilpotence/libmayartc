@@ -304,7 +304,7 @@ void RTCPeer::onRemoteICECandidate(int peerid, std::string sdp_mid, int sdp_mlin
 	RTCConnection *connection = getConnection(peerid);
 
 	//Create the received candidate
-	rtc::scoped_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(sdp_mid, sdp_mlineindex, sdp));
+	rtc::scoped_ptr<webrtc::IceCandidateInterface> candidate(webrtc::CreateIceCandidate(sdp_mid, sdp_mlineindex, sdp, NULL));
 
 	if (!candidate.get()) {
 		std::cout << "[SIG] cannot parse candidate information" << std::endl;
